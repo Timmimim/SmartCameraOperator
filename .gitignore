@@ -107,3 +107,4 @@ venv.bak/
 .venv/**
 .idea/**
 .directory
+data/**
