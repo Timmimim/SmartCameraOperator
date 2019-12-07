@@ -108,3 +108,4 @@ venv.bak/
 .idea/**
 .directory
 data/**
+tf/model/**
