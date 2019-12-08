@@ -1,5 +1,6 @@
 import csv
 import os
+import shutil as sh
 
 class Label:
     def __init__(self, type, x, y, width, height):
@@ -69,16 +70,15 @@ with open('rimondo_filtered.csv', newline='') as csvfile:
 
 
     i=0
-    os.makedirs("labelDescriptors", exist_ok=True)
+    learnDataDirName = "data_and_labels"
+    os.makedirs(learnDataDirName, exist_ok=True)
     for user in users:
-        userPath = "labelDescriptors/" + user.name
-        os.makedirs(userPath, exist_ok=True)
         for image in user.labelledImages:
-            imagePath = f"{userPath}/{image.path}"
-            os.makedirs(imagePath, exist_ok=True)
-            file = open(f"{imagePath}/{image.filename}.txt", "w+")
+            descriptorFileName = f"{learnDataDirName}/{user.name}_{image.path}_{image.filename}"
+            file = open(f"{descriptorFileName}.txt", "w+")
             for label in image.labels:
                 i+=1
                 file.write(f"{label.type} {label.x} {label.y} {label.width} {label.height}\n")
             file.close()
+            sh.copyfile(f"./frames/{image.path}/{image.filename}.png", f"{descriptorFileName}.png")
     print(f"Saved {i} labels.")
