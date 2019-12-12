@@ -4,7 +4,10 @@ import shutil as sh
 
 class Label:
     def __init__(self, type, x, y, width, height):
-        self.type, self.x, self.y, self.width, self.height = int(type)-1, x, y, width, height
+        if int(type) == 5:
+            self.type, self.x, self.y, self.width, self.height = 2, x, y, width, height
+        else:
+            self.type, self.x, self.y, self.width, self.height = int(type)-1, x, y, width, height
 
 class User:
     def __init__(self, username):
@@ -75,10 +78,10 @@ with open('rimondo_filtered.csv', newline='') as csvfile:
     for user in users:
         for image in user.labelledImages:
             descriptorFileName = f"{learnDataDirName}/{user.name}_{image.path}_{image.filename}"
-            file = open(f"{descriptorFileName}.txt", "w+")
+            file = open(f"{descriptorFileName}.txt", "w")
             for label in image.labels:
                 i+=1
                 file.write(f"{label.type} {label.x} {label.y} {label.width} {label.height}\n")
             file.close()
-            sh.copyfile(f"./frames/{image.path}/{image.filename}.png", f"{descriptorFileName}.png")
+            #sh.copyfile(f"./frames/{image.path}/{image.filename}.png", f"{descriptorFileName}.png")
     print(f"Saved {i} labels.")
