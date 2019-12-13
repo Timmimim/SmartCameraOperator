@@ -17,7 +17,7 @@ if __name__ == '__main__' :
 					print(f"Frames per second using video.get(cv2.cv.CV_CAP_PROP_FPS): {fps}")
 				else :
 					fps = video.get(cv2.CAP_PROP_FPS)
-					print(f"Frames per second using video.get(cv2.CAP_PROP_FPS) : {fps}")
+					print("Frames per second using video.get(cv2.CAP_PROP_FPS) : {fps}")
 
 				video.release(); 
 		except FileNotFoundError:

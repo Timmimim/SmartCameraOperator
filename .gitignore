@@ -105,7 +105,11 @@ venv.bak/
 
 # Others
 .venv/**
+.venv3/**
 .idea/**
 .directory
 data/**
 tf/model/**
+detection/test_imgSeq/
+detection/YOLO_weights
+detection/out**
