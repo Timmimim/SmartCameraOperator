@@ -103,13 +103,22 @@ venv.bak/
 # mypy
 .mypy_cache/
 
-# Others
-.venv/**
-.venv3/**
-.idea/**
-.directory
+# Videos
+**.mvi
+**.MP4
+**.mp4
+**.avi
+
+# data & outputs
 data/**
 tf/model/**
 detection/test_imgSeq/
 detection/YOLO_weights
 detection/out**
+
+# Others
+.venv/**
+.venv3/**
+.idea/**
+.directory
+
