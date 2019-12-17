@@ -1,8 +1,9 @@
 import os
 import sys
 import cv2
-import pydarknet as pdNet
+import pydarknet
 import time
+
 
 def create_filenames_txt_img(outpath, frame_count):
     numPrefix = ""
@@ -25,6 +26,37 @@ def create_filenames_txt_img(outpath, frame_count):
 
     return txt_name, img_name
 
+
+def weighted_mean_coordinates(array_of_four_tuples, frame_count, weight):
+    x, y, w, h = 0.0, 0.0, 0.0, 0.0
+    i = 0
+    num_weighted_near_past_elements = 15
+    while i < len(array_of_four_tuples):
+        tuple = array_of_four_tuples[(frame_count-i) % len(array_of_four_tuples)]
+        if i < num_weighted_near_past_elements:
+            x += weight * tuple[0] / (len(array_of_four_tuples) + (weight-1) * num_weighted_near_past_elements)
+            y += weight * tuple[1] / (len(array_of_four_tuples) + (weight-1) * num_weighted_near_past_elements)
+            w += weight * tuple[2] / (len(array_of_four_tuples) + (weight-1) * num_weighted_near_past_elements)
+            h += weight * tuple[3] / (len(array_of_four_tuples) + (weight-1) * num_weighted_near_past_elements)
+        else:
+            x += tuple[0] / (len(array_of_four_tuples) + (weight - 1) * num_weighted_near_past_elements)
+            y += tuple[1] / (len(array_of_four_tuples) + (weight - 1) * num_weighted_near_past_elements)
+            w += tuple[2] / (len(array_of_four_tuples) + (weight - 1) * num_weighted_near_past_elements)
+            h += tuple[3] / (len(array_of_four_tuples) + (weight - 1) * num_weighted_near_past_elements)
+        i += 1
+
+    return int(x), int(y), int(w), int(h)
+
+
+def mean_coordinates(array_of_four_tuples):
+    x, y, w, h = 0.0, 0.0, 0.0, 0.0
+    for idx, tuple in enumerate(array_of_four_tuples):
+        x += tuple[0] / len(array_of_four_tuples)
+        y += tuple[1] / len(array_of_four_tuples)
+        w += tuple[2] / len(array_of_four_tuples)
+        h += tuple[3] / len(array_of_four_tuples)
+    return int(x), int(y), int(w), int(h)
+
 if (not sys.argv[1] == "-i") and (not sys.argv[1] == "-v"):
     raise OSError("Wrong input - must set flag -i for image-, or -v for video classification.")
 
@@ -34,6 +66,7 @@ elif len(sys.argv) < 3:
 else:
     DARKNET_LOCATION = "/home/timmimim/darknet"
 
+    """
     # Darknet YOLOv3 20000 epochs à 32 frames, racist but stable on test data
     net = pdNet.Detector(bytes(f"{DARKNET_LOCATION}/cfg/horsey-yolov3.cfg", encoding="utf-8"),
                    bytes(f"{DARKNET_LOCATION}/backup/horsey1_yolo3_lr.001/horsey-yolov3_20000.weights", encoding="utf-8"),
@@ -41,18 +74,19 @@ else:
                    bytes(f"{DARKNET_LOCATION}/data/horsey-obj.data", encoding="utf-8"))    
     """
     # Darknet tiny-YOLOv3
-    net = pdNet.Detector(bytes(f"{DARKNET_LOCATION}/cfg/horsey-yolov3-tiny.cfg", encoding="utf-8"),
-                   bytes(f"{DARKNET_LOCATION}/backup/horsey_tinyYOLOv3/horsey-yolov3-tiny_1700.weights", encoding="utf-8"),
-                   0,
-                   bytes(f"{DARKNET_LOCATION}/data/horsey-obj.data", encoding="utf-8"))
-    """
+    net = pydarknet.Detector(bytes(f"{DARKNET_LOCATION}/cfg/horsey-yolov3-tiny2.cfg", encoding="utf-8"),
+                             bytes(f"{DARKNET_LOCATION}/backup/horsey-yolov3-tiny2_5500.weights", encoding="utf-8"),
+                             0,
+                             bytes(f"{DARKNET_LOCATION}/data/horsey-obj.data", encoding="utf-8"))
+
+
     if sys.argv[1] == "-i":
         filepath = sys.argv[2]
         img = cv2.imread(filepath)
 
         start_time = time.time()
 
-        img_darknet = pdNet.Image(img)
+        img_darknet = pydarknet.Image(img)
 
         results = net.detect(img_darknet)
 
@@ -77,114 +111,219 @@ else:
         filepath = sys.argv[2]
         vid = cv2.VideoCapture(filepath)
 
-        if vid.isOpened():
-            # Find OpenCV version
-            (major_ver, minor_ver, subminor_ver) = (cv2.__version__).split('.')
+        try:
+            if vid.isOpened():
+                # Find OpenCV version
+                (major_ver, minor_ver, subminor_ver) = (cv2.__version__).split('.')
 
-            if int(major_ver) < 3:
-                fps = vid.get(cv2.cv.CV_CAP_PROP_FPS)
-                print(f"Frames per second using video.get(cv2.cv.CV_CAP_PROP_FPS): {fps}")
-                # get vid property
-                width = int(vid.get(cv2.cv.CV_CAP_PROP_FRAME_WIDTH))
-                height = int(vid.get(cv2.cv.CV_CAP_PROP_FRAME_HEIGHT))
-                # number frames in video
-                num_total_frames = int(vid.get(cv2.cv.CV_CAP_PROP_POS_FRAME_COUNT))
-            else:
-                fps = vid.get(cv2.CAP_PROP_FPS)
-                print(f"Frames per second using video.get(cv2.CAP_PROP_FPS) : {fps}")
-                # get vid property
-                width = int(vid.get(cv2.CAP_PROP_FRAME_WIDTH))
-                height = int(vid.get(cv2.CAP_PROP_FRAME_HEIGHT))
-                # number frames in video
-                num_total_frames = int(vid.get(cv2.CAP_PROP_FRAME_COUNT))
-
-            vid_output = cv2.VideoWriter("out-vid.mp4", cv2.VideoWriter_fourcc(*'DIVX'), fps, (width,height))
-
-            average_time = 0
-            total_time = 0
-            frame_count = 0
-
-            while True:
-                if frame_count == num_total_frames:
-                    break
-
-                successfully_read, frame = vid.read()
-
-                if successfully_read:
-                    # Measuring Time taken by YOLO and API Call overhead
-                    start_time = time.time()
-
-                    dark_frame = pdNet.Image(frame)
-                    results = net.detect(dark_frame)
-                    del dark_frame
-
-                    frame_count += 1
-                    end_time = time.time()
-
-                    classification_time = (end_time - start_time)
-                    total_time += classification_time
-                    average_time = total_time / frame_count
-                    print(f"Time-Cost for current frame: {end_time-start_time}  (avg: {average_time})")
-
-                    if len(sys.argv) == 5 and sys.argv[3] == "-sli":
-                        target_dir = sys.argv[4]
-                        os.makedirs(target_dir, exist_ok=True)
-                        txt_name, img_name = create_filenames_txt_img(target_dir, frame_count-1)
-                        txt_file = open(txt_name, "w+")
-                        for cat, score, bounds in results:
-                            class_found = str(cat.decode("utf-8"))
-                            class_code = 2
-                            if class_found == "horse":
-                                class_code = 0
-                            elif class_found == "rider":
-                                class_code = 1
-                            else:
-                                pass
-                            x, y, w, h = bounds
-                            x_norm = (x - w/2) / width
-                            y_norm = (y - h/2) / height
-                            w_norm = (x + w/2) / width
-                            h_norm = (y + h/2) / height
-                            txt_file.write(f"{class_code} {x_norm} {y_norm} {w_norm} {h_norm}\n")
-                        txt_file.close()
-                        cv2.imwrite(img_name, frame)
-
-
-                    for cat, score, bounds in results:
-                        class_found = str(cat.decode("utf-8"))
-                        class_code = (163, 161, 159)
-                        if class_found == "horse":
-                            class_code = (77, 166, 20)
-                        elif class_found == "rider":
-                            class_code = (82, 95, 206)
-                        else:
-                            pass
-
-                        x, y, w, h = bounds
-                        x = int((x - w / 2))
-                        y = int((y - h / 2))
-                        w = int((x + w))
-                        h = int((y + h))
-
-                        cv2.rectangle(frame, (x, y), (w, h), class_code, 6)
-                        cv2.putText(frame, class_found, (x, y), cv2.FONT_HERSHEY_SIMPLEX, 2, class_code, 3)
-
-                    vid_output.write(frame)
-
+                if int(major_ver) < 3:
+                    fps = vid.get(cv2.cv.CV_CAP_PROP_FPS)
+                    print(f"Frames per second using video.get(cv2.cv.CV_CAP_PROP_FPS): {fps}")
+                    # get vid property
+                    width = int(vid.get(cv2.cv.CV_CAP_PROP_FRAME_WIDTH))
+                    height = int(vid.get(cv2.cv.CV_CAP_PROP_FRAME_HEIGHT))
+                    # number frames in video
+                    num_total_frames = int(vid.get(cv2.cv.CV_CAP_PROP_POS_FRAME_COUNT))
                 else:
-                    frame_count += 1
-                    print(f"Failed to read frame number {frame_count}.")
+                    fps = vid.get(cv2.CAP_PROP_FPS)
+                    print(f"Frames per second using video.get(cv2.CAP_PROP_FPS) : {fps}")
+                    # get vid property
+                    width = int(vid.get(cv2.CAP_PROP_FRAME_WIDTH))
+                    height = int(vid.get(cv2.CAP_PROP_FRAME_HEIGHT))
+                    # number frames in video
+                    num_total_frames = int(vid.get(cv2.CAP_PROP_FRAME_COUNT))
 
-                if frame_count%50 == 0:
-                    remaining_time = (num_total_frames-frame_count) * average_time
-                    hours = int(remaining_time / 3600)
-                    minutes = int((remaining_time % 3600) / 60)
-                    print(f"\n\nCurrent frame: #{frame_count} of {num_total_frames}.",
-                          f"\nApproximate time remaining: {hours}h {minutes}min {remaining_time - 3600*hours - 60*minutes}s\n\n")
+                vid_output = cv2.VideoWriter("out-vid.mp4", cv2.VideoWriter_fourcc(*'DIVX'), fps, (width,height))
 
+                try:
+                    average_time = 0
+                    total_time = 0
+                    frame_count = 0
+
+                    past_frames_roi = [(0,0,width,height),(0,0,width,height),(0,0,width,height),(0,0,width,height),(0,0,width,height),
+                                       (0,0,width,height),(0,0,width,height),(0,0,width,height),(0,0,width,height),(0,0,width,height),
+                                       (0,0,width,height),(0,0,width,height),(0,0,width,height),(0,0,width,height),(0,0,width,height),
+                                       (0,0,width,height),(0,0,width,height),(0,0,width,height),(0,0,width,height),(0,0,width,height),
+                                       (0,0,width,height),(0,0,width,height),(0,0,width,height),(0,0,width,height),(0,0,width,height),
+                                       (0,0,width,height),(0,0,width,height),(0,0,width,height),(0,0,width,height),(0,0,width,height),
+                                       (0,0,width,height),(0,0,width,height),(0,0,width,height),(0,0,width,height),(0,0,width,height),
+                                       (0,0,width,height),(0,0,width,height),(0,0,width,height),(0,0,width,height),(0,0,width,height),
+                                       (0,0,width,height),(0,0,width,height),(0,0,width,height),(0,0,width,height),(0,0,width,height),
+                                       (0,0,width,height),(0,0,width,height),(0,0,width,height),(0,0,width,height),(0,0,width,height),
+                                       (0,0,width,height),(0,0,width,height),(0,0,width,height),(0,0,width,height),(0,0,width,height),
+                                       (0,0,width,height),(0,0,width,height),(0,0,width,height),(0,0,width,height),(0,0,width,height),
+                                       (0,0,width,height),(0,0,width,height),(0,0,width,height),(0,0,width,height),(0,0,width,height),
+                                       (0,0,width,height),(0,0,width,height),(0,0,width,height),(0,0,width,height),(0,0,width,height),
+                                       (0,0,width,height),(0,0,width,height),(0,0,width,height),(0,0,width,height),(0,0,width,height),
+                                       (0,0,width,height),(0,0,width,height),(0,0,width,height),(0,0,width,height),(0,0,width,height)]
+
+                    while True:
+                        if frame_count == num_total_frames:
+                            break
+
+                        successfully_read, frame = vid.read()
+
+                        if successfully_read:
+                            # Measuring Time taken by YOLO and API Call overhead
+                            start_time = time.time()
+
+                            dark_frame = pydarknet.Image(frame)
+                            results = net.detect(dark_frame)
+                            del dark_frame
+
+                            frame_count += 1
+                            end_time = time.time()
+
+                            classification_time = (end_time - start_time)
+                            total_time += classification_time
+                            average_time = total_time / frame_count
+                            print(f"Time-Cost for current frame: {end_time-start_time}  (avg: {average_time})")
+
+                            if len(sys.argv) == 5 and sys.argv[3] == "-sli":
+                                target_dir = sys.argv[4]
+                                os.makedirs(target_dir, exist_ok=True)
+                                txt_name, img_name = create_filenames_txt_img(target_dir, frame_count-1)
+                                txt_file = open(txt_name, "w+")
+                                for cat, score, bounds in results:
+                                    class_found = str(cat.decode("utf-8"))
+                                    class_code = 2
+                                    if class_found == "horse":
+                                        class_code = 0
+                                    elif class_found == "rider":
+                                        class_code = 1
+                                    else:
+                                        pass
+                                    x, y, w, h = bounds
+                                    x_norm = (x - w/2) / width
+                                    y_norm = (y - h/2) / height
+                                    w_norm = (x + w/2) / width
+                                    h_norm = (y + h/2) / height
+                                    txt_file.write(f"{class_code} {x_norm} {y_norm} {w_norm} {h_norm}\n")
+                                txt_file.close()
+                                cv2.imwrite(img_name, frame)
+
+                            elif len(sys.argv) == 4 and sys.argv[3] == "-z":
+                                array_position = frame_count % 80
+
+                                frame_min_x = width
+                                frame_min_y = height
+                                frame_max_x = 0
+                                frame_max_y = 0
+                                if len(results) == 0:
+
+                                    past_frames_roi[array_position] = past_frames_roi[(frame_count -1) % 40]
+
+                                else:
+                                    for cat, score, bounds in results:
+                                        class_found = str(cat.decode("utf-8"))
+                                        class_code = (163, 161, 159)
+                                        if class_found == "horse":
+                                            class_code = (77, 166, 20)
+                                        elif class_found == "rider":
+                                            class_code = (82, 95, 206)
+                                        else:
+                                            pass
+
+                                        x, y, w, h = bounds
+                                        x = int((x - w / 2))
+                                        y = int((y - h / 2))
+                                        w = int((x + w))
+                                        h = int((y + h))
+
+                                        cv2.rectangle(frame, (x, y), (w, h), class_code, 6)
+                                        cv2.putText(frame, class_found, (x, y), cv2.FONT_HERSHEY_SIMPLEX, 2, class_code, 6)
+
+                                        if x < frame_min_x:
+                                            frame_min_x = x
+                                        if y < frame_min_y:
+                                            frame_min_y = y
+                                        if w > frame_max_x:
+                                            frame_max_x = w
+                                        if h > frame_max_y:
+                                            frame_max_y = h
+
+                                        #print(f"frame curr: {x},{y}, {w}, {h}")
+                                        #print(f"min // max: {frame_min_x}, {frame_min_y}, {frame_max_x}, {frame_max_y}")
+
+                                    if frame_min_x - int(width*.1) < 0:
+                                        frame_min_x = 0
+                                    else:
+                                        frame_min_x -= int(width*.1)
+
+                                    if frame_min_y - int(height*.1) < 0:
+                                        frame_min_y = 0
+                                    else:
+                                        frame_min_y -= int(height*.1)
+
+                                    if frame_max_x + int(width*.1) > width:
+                                        frame_max_x = width
+                                    else:
+                                        frame_max_x += int(width*.1)
+
+                                    if frame_max_y + int(height*.1) > height:
+                                        frame_max_y = height
+                                    else:
+                                        frame_max_y += int(height*.1)
+
+                                    past_frames_roi[array_position] = (frame_min_x, frame_min_y, frame_max_x, frame_max_y)
+
+                                #print(f"frame total:{past_frames_roi[array_position]}")
+
+                                curr_min_x, curr_min_y, curr_max_x, curr_max_y = weighted_mean_coordinates(past_frames_roi, frame_count, 6)
+
+                                #print(f"\nglobal: {curr_min_x}, {curr_min_y}, {curr_max_x}, {curr_max_y}\n")
+
+                                frame = frame[curr_min_y:curr_max_y, curr_min_x:curr_max_x]
+
+                                try:
+                                    frame = cv2.resize(frame, (width,height))
+                                except cv2.error:
+                                    print(f"\n\nWARNING: OpenCV Error during resizing:\n Frame size: {frame.size}, (newH,newW): ({height}, {width})\n\n")
+
+                            else:
+                                for cat, score, bounds in results:
+                                    class_found = str(cat.decode("utf-8"))
+                                    class_code = (163, 161, 159)
+                                    if class_found == "horse":
+                                        class_code = (77, 166, 20)
+                                    elif class_found == "rider":
+                                        class_code = (82, 95, 206)
+                                    else:
+                                        pass
+
+                                    x, y, w, h = bounds
+                                    x = int((x - w / 2))
+                                    y = int((y - h / 2))
+                                    w = int((x + w))
+                                    h = int((y + h))
+
+                                    cv2.rectangle(frame, (x, y), (w, h), class_code, 6)
+                                    cv2.putText(frame, class_found, (x, y), cv2.FONT_HERSHEY_SIMPLEX, 2, class_code, 3)
+
+                            vid_output.write(frame)
+
+                        else:
+                            frame_count += 1
+                            print(f"Failed to read frame number {frame_count}.")
+
+                        if frame_count%50 == 0:
+                            remaining_time = (num_total_frames-frame_count) * average_time
+                            hours = int(remaining_time / 3600)
+                            minutes = int((remaining_time % 3600) / 60)
+                            print(f"\n\nCurrent frame: #{frame_count} of {num_total_frames}.",
+                                  f"\nApproximate time remaining: {hours}h {minutes}min {remaining_time - 3600*hours - 60*minutes}s\n\n")
+
+                    vid.release()
+                    vid_output.release()
+                    print("Finished classification.")
+
+                except KeyboardInterrupt:
+                    vid_output.release()
+                    print("Video Output Stream closed upon KeyboardInterrupt.")
+                    raise KeyboardInterrupt
+
+        except KeyboardInterrupt:
             vid.release()
-            vid_output.release()
-            print("Finished classification.")
-
+            print("Video Read Stream closed upon KeyboardInterrupt.")
     else:
         pass
