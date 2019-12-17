@@ -66,9 +66,9 @@ elif len(sys.argv) < 3:
 else:
     DARKNET_LOCATION = "/home/timmimim/darknet"
 
-    """
+
     # Darknet YOLOv3 20000 epochs à 32 frames, racist but stable on test data
-    net = pdNet.Detector(bytes(f"{DARKNET_LOCATION}/cfg/horsey-yolov3.cfg", encoding="utf-8"),
+    net = pydarknet.Detector(bytes(f"{DARKNET_LOCATION}/cfg/horsey-yolov3.cfg", encoding="utf-8"),
                    bytes(f"{DARKNET_LOCATION}/backup/horsey1_yolo3_lr.001/horsey-yolov3_20000.weights", encoding="utf-8"),
                    0,
                    bytes(f"{DARKNET_LOCATION}/data/horsey-obj.data", encoding="utf-8"))    
@@ -78,7 +78,7 @@ else:
                              bytes(f"{DARKNET_LOCATION}/backup/horsey-yolov3-tiny2_5500.weights", encoding="utf-8"),
                              0,
                              bytes(f"{DARKNET_LOCATION}/data/horsey-obj.data", encoding="utf-8"))
-
+    """
 
     if sys.argv[1] == "-i":
         filepath = sys.argv[2]
