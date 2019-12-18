@@ -69,7 +69,7 @@ else:
 
     # Darknet YOLOv3 20000 epochs à 32 frames, racist but stable on test data
     net = pydarknet.Detector(bytes(f"{DARKNET_LOCATION}/cfg/horsey-yolov3.cfg", encoding="utf-8"),
-                   bytes(f"{DARKNET_LOCATION}/backup/horsey1_yolo3_lr.001/horsey-yolov3_20000.weights", encoding="utf-8"),
+                   bytes(f"{DARKNET_LOCATION}/weights_trained/horsey-yolov3_20000.weights", encoding="utf-8"),
                    0,
                    bytes(f"{DARKNET_LOCATION}/data/horsey-obj.data", encoding="utf-8"))    
     """
@@ -194,16 +194,16 @@ else:
                                     else:
                                         pass
                                     x, y, w, h = bounds
-                                    x_norm = (x - w/2) / width
-                                    y_norm = (y - h/2) / height
-                                    w_norm = (x + w/2) / width
-                                    h_norm = (y + h/2) / height
+                                    x_norm = x / width
+                                    y_norm = y / height
+                                    w_norm = w / width
+                                    h_norm = h / height
                                     txt_file.write(f"{class_code} {x_norm} {y_norm} {w_norm} {h_norm}\n")
                                 txt_file.close()
                                 cv2.imwrite(img_name, frame)
 
                             elif len(sys.argv) == 4 and sys.argv[3] == "-z":
-                                array_position = frame_count % 80
+                                array_position = frame_count % len(past_frames_roi)
 
                                 frame_min_x = width
                                 frame_min_y = height
@@ -211,7 +211,7 @@ else:
                                 frame_max_y = 0
                                 if len(results) == 0:
 
-                                    past_frames_roi[array_position] = past_frames_roi[(frame_count -1) % 40]
+                                    past_frames_roi[array_position] = past_frames_roi[(frame_count -1) % len(past_frames_roi)]
 
                                 else:
                                     for cat, score, bounds in results:
