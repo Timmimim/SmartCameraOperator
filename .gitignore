@@ -115,6 +115,7 @@ data/*.txt
 data/*.zip
 data/*.csv
 data/*.tar.gz
+data/db_viewer.py
 
 tf/model/**
 
@@ -122,7 +123,15 @@ detection/test_imgSeq/
 detection/YOLO_weights
 detection/out**
 
+# C++ Build
 classification_reviewer/cmake-build-debug
+classification_reviewer/CMakeCache.txt
+classification_reviewer/CMakeFiles/
+classification_reviewer/Makefile
+classification_reviewer/cmake_install.cmake
+classification_reviewer/classification_reviewer.cbp
+classification_reviewer/bin/
+
 
 # Others
 .venv/**
