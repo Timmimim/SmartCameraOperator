@@ -110,15 +110,24 @@ venv.bak/
 **.avi
 
 # data & outputs
-data/**
+data/*/**
+data/*.txt
+data/*.zip
+data/*.csv
+data/*.tar.gz
+
 tf/model/**
+
 detection/test_imgSeq/
 detection/YOLO_weights
 detection/out**
+
+classification_reviewer/cmake-build-debug
 
 # Others
 .venv/**
 .venv3/**
 .idea/**
+**/.idea
 .directory
 
