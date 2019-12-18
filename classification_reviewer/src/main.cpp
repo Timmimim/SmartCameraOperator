@@ -9,7 +9,7 @@
 
 
 //Put the directory with the images and the corresponding files here!
-const char* directory = "/home/timmimim/Documents/WWU/Info_MSc/CV/SmartCameraOperator/data/data_and_labels";
+const char* directory = "</path/to/data_and_labels>";
 
 
 namespace fs = std::filesystem;
