@@ -60,7 +60,7 @@ There are different settings available for the tool via flags:
 
 For more details, see the code and corresponding comments.
 
-Finally, to speed up quality checks for newly generated labels and training data, we created a Classification Reviewer tool.
+Finally, to speed up quality checks for newly generated labels and training data, we created a very simplistic Classification Reviewer tool.
 The tool is written in C++ (ISO Standard C++17 necessary), uses OpenCV (Version 3.4 or higher), and can be found in the `classification_reviewer/` directory.
 We also supply a `CMakeLists.txt` file to make compilation and usage easier on systems that have the `CMake` and `Make` tools installed.    
 Our review tool only works on label data in the YOLO training data format.
