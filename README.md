@@ -1,5 +1,5 @@
 # SmartCameraOperator
-Practical Assignment complementing the Computer Vision lecture held by Prof. Dr. Risse at WWU Münster. 
+Practical Assignment complementing the Computer Vision lecture held by Prof. Dr. Risse at WWU Münster during the Winter Semester of 2019/20. 
 The Practical is further supervised by Sören Klemm.
 
 ### Goals
@@ -48,9 +48,24 @@ The database created above is split into 90% training, and 10% validation data.
 Using this database, we trained the afforementioned YOLO detector, which we then used via the `detect_in_video.py` script, 
 located in the `detection/` directory.
 This script is written around the [YOLO3-4-Py][yolo34py-gpu] Python-wrapper for Darknet, as a simple command line tool.   
-There are different settings available for the tool:
+There are different settings available for the tool via flags:
 
-- 
+- *-i <path/to/frame>* &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; classify single image
+
+- *-v <path/to/video>* &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; classify entire video
+
+- *-v <path/to/video>* -z &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; classify video and zoom in on RoIs
+
+- *-v <path/to/video>* -sli <out/dir/> &nbsp;&nbsp;&nbsp;&nbsp; **s**ave **l**abelled **i**mages as new YOLO training data
+
+For more details, see the code and corresponding comments.
+
+Finally, to speed up quality checks for newly generated labels and training data, we created a Classification Reviewer tool.
+The tool is written in C++ (ISO Standard C++17 necessary), uses OpenCV (Version 3.4 or higher), and can be found in the `classification_reviewer/` directory.
+We also supply a `CMakeLists.txt` file to make compilation and usage easier on systems that have the `CMake` and `Make` tools installed.    
+Our review tool only works on label data in the YOLO training data format.
+The target directory holding the label data to be checked must be set in the source code before compilation.
+The `+` key accepts the currently displayed labels, the `-` key automatically deletes labels file and corresponding image.
 
 
 #### Iteration 3
@@ -58,7 +73,7 @@ There are different settings available for the tool:
 
 ##
 
-##### Software and Technology used
+### Software and Technology used
 ![YOLOv3 and YOLO][yolo]
 ![Darknet][darknet]
 ![OpenCV][opencv]
@@ -67,6 +82,8 @@ There are different settings available for the tool:
 [YOLOv3](https://pjreddie.com/darknet/yolo/ "You only click once. ;-)"),
 [Python 3.6^](https://www.python.org/ "Ni!!!"),
 [YOLO3-4-Py][yolo34py-gpu]
+
+##
 
 ##### Created by
 Max Loch, Jacomo Krause und Timm Kühnel
