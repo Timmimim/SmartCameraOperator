@@ -132,6 +132,11 @@ classification_reviewer/cmake_install.cmake
 classification_reviewer/classification_reviewer.cbp
 classification_reviewer/bin/
 
+# Presentations
+presentations/*
+
+# "Test" Directory currently used for new potential software choices
+test/
 
 # Others
 .venv/**
