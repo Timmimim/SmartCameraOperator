@@ -51,6 +51,9 @@ for pathAndFilename in glob.iglob(os.path.join(data_dir, "*.png")):
 
 		w = data.w[0] * width 
 		h = data.h[0] * height 
+			
+		x += .5 * w
+		y += .5 * h
 
 		print(title, new_width, new_height)
 
@@ -106,6 +109,9 @@ for pathAndFilename in glob.iglob(os.path.join(data_dir, "*.png")):
 
 			w = l_w * width 
 			h = l_h * height 
+			
+			x += .5 * w
+			y += .5 * h
 
 			print(title, new_width, new_height)
 
