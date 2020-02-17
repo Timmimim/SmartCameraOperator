@@ -45,7 +45,7 @@ def weighted_mean_coordinates(array_of_four_tuples, frame_count, weight):
     # w and h are width and height of the BB
     x, y, w, h = 0.0, 0.0, 0.0, 0.0
     i = 0
-    num_weighted_near_past_elements = 15
+    num_weighted_near_past_elements = 10
     while i < len(array_of_four_tuples):
         tuple = array_of_four_tuples[(frame_count-i) % len(array_of_four_tuples)]
         if i < num_weighted_near_past_elements:
@@ -87,7 +87,7 @@ else:
 
     # Initialise neural network using YOLO architecture
     # TODO: Use your own weights and configs! If you would like to try ours, feel free to write us a friendly message.
-
+    
     # Darknet YOLOv3 20000 epochs à 32 frames, racist but stable on test data
     net = pydarknet.Detector(bytes(f"{DARKNET_LOCATION}/cfg/horsey-yolov3.cfg", encoding="utf-8"),
                    bytes(f"{DARKNET_LOCATION}/backup/horsey1_yolo3_lr.001/horsey-yolov3_20000.weights", encoding="utf-8"),
@@ -168,7 +168,10 @@ else:
                     num_total_frames = int(vid.get(cv2.CAP_PROP_FRAME_COUNT))
 
                 # Open an output stream to write the labelled video to
-                vid_output = cv2.VideoWriter("out-vid.mp4", cv2.VideoWriter_fourcc(*'DIVX'), fps, (width,height))
+                vid_output = cv2.VideoWriter("out-vid.mp4", cv2.VideoWriter_fourcc(*'mp4v'), fps, (width,height))
+
+                # Count streak of frames with no horses found; Used to zoom back out if no horses are in view/arena
+                none_found_counter = 0
 
                 try:
                     # variables to time classification, which will be updated and logged for convenience
@@ -267,9 +270,14 @@ else:
 
                                 # in case of no RoIs found, copy the last RoI coordinates found (i.e. pause camera motion and zoom)
                                 if len(results) == 0:
-                                    past_frames_roi[array_position] = past_frames_roi[(frame_count -1) % len(past_frames_roi)]
+                                    none_found_counter += 1
+                                    if none_found_counter < 50:
+                                        past_frames_roi[array_position] = past_frames_roi[(frame_count -1) % len(past_frames_roi)]
+                                    else:
+                                        past_frames_roi[array_position] = (0,0,width,height)
 
                                 else:
+                                    none_found_counter = 0
                                     for cat, score, bounds in results:
                                         # Label as found be YOLO CNN
                                         class_found = str(cat.decode("utf-8"))
