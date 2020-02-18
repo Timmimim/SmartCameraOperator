@@ -6,8 +6,8 @@ from PIL import Image
 # Current directory
 current_dir = os.path.dirname(os.path.abspath(__file__))
 
-data_dir = f"{current_dir}/iteration-3-1/ffmpeg1"
-out_dir = os.path.join(current_dir, "iteration-3-1/crops_ffmpeg1")
+data_dir = f"{current_dir}/iteration-3-1/ffmpeg3"
+out_dir = os.path.join(current_dir, "iteration-3-1/crops_ffmpeg3")
 
 for pathAndFilename in glob.iglob(os.path.join(data_dir, "*.png")):
 

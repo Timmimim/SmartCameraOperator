@@ -9,13 +9,15 @@ data_dir2 = f"{current_dir}/iteration-3-1/ffmpeg1"
 data_dir3 = f"{current_dir}/iteration-3-1/ffmpeg2"
 data_dir4 = f"{current_dir}/iteration-3-1/crops_ffmpeg1"
 data_dir5 = f"{current_dir}/iteration-3-1/crops"
+data_dir3 = f"{current_dir}/iteration-3-1/ffmpeg3"
+data_dir4 = f"{current_dir}/iteration-3-1/crops_ffmpeg3"
 
 # Percentage of images to be used for the test set
 percentage_test = 10
 
 # Create and/or truncate train.txt and test.txt
-file_train = open('horsey_Kirchhellen_2_train.txt', 'w')
-file_test = open('horsey_Kirchhellen_2_test.txt', 'w')
+file_train = open('horsey_Kirchhellen_3_train.txt', 'w')
+file_test = open('horsey_Kirchhellen_3_test.txt', 'w')
 
 # Populate train.txt and test.txt
 counter = 1
