@@ -1,0 +1,3 @@
+[submodule "detection/MultiObjectTracker"]
+	path = detection/MultiObjectTracker
+	url = https://github.com/Timmimim/Multitarget-tracker.git
