@@ -33,6 +33,18 @@ for pathAndFilename in glob.iglob(os.path.join(data_dir, "*.png")):
 		max_right_extension = width - w - 1
 		max_bottom_extension = height - h - 1
 
+		""" 
+			Extend BoundingBoxes to left, toward top, right and toward bottom.
+			The factors as due to a specific scenario, are hardcoded in and may
+			be taken out or altered for different camera positions.
+			Different factors are used to approximately account for the ratio of 
+			roof, floor, and space beside the riding area to it, as the camera
+			in Kirchhellen videos is positioned in a way such that the riding 
+			area and horses are in the center center left of the image. Crops
+			should feature horses about equally distributed within them. Without
+			factors they would lean to one side, and aspect ratios become weird.
+			(Hard to describe, just fiddle around a little to see what we mean.)
+		"""
 		x_extended = x - int(.175*random.randrange(0, max_left_extension))
 		y_extended = y - int(.1*random.randrange(0, max_top_extension))
 		w_extended = w + int(.05*random.randrange(0, max_right_extension))
@@ -91,6 +103,18 @@ for pathAndFilename in glob.iglob(os.path.join(data_dir, "*.png")):
 			max_right_extension = width - w - 1
 			max_bottom_extension = height - h - 1
 
+			""" 
+				Extend BoundingBoxes to left, toward top, right and toward bottom.
+				The factors as due to a specific scenario, are hardcoded in and may
+				be taken out or altered for different camera positions.
+				Different factors are used to approximately account for the ratio of 
+				roof, floor, and space beside the riding area to it, as the camera
+				in Kirchhellen videos is positioned in a way such that the riding 
+				area and horses are in the center center left of the image. Crops
+				should feature horses about equally distributed within them. Without
+				factors they would lean to one side, and aspect ratios become weird.
+				(Hard to describe, just fiddle around a little to see what we mean.)
+			"""	
 			x_extended = x - int(.175*random.randrange(0, max_left_extension))
 			y_extended = y - int(.1*random.randrange(0, max_top_extension))
 			w_extended = w + int(.05*random.randrange(0, max_right_extension))

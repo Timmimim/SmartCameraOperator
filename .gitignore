@@ -134,6 +134,8 @@ classification_reviewer/bin/
 
 # Presentations
 presentations/*
+written_report/*
+detection/screenshots/
 
 # "Test" Directory currently used for new potential software choices
 test/
