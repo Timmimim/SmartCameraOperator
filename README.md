@@ -107,5 +107,5 @@ GNU GPL v3
 [yolo]: https://pjreddie.com/media/image/yologo_2.png "You only look once."
 [darknet]: https://camo.githubusercontent.com/e69d4118b20a42de4e23b9549f9a6ec6dbbb0814/687474703a2f2f706a7265646469652e636f6d2f6d656469612f66696c65732f6461726b6e65742d626c61636b2d736d616c6c2e706e67 "So dark!!"
 [opencv]: https://upload.wikimedia.org/wikipedia/commons/thumb/5/53/OpenCV_Logo_with_text.png/195px-OpenCV_Logo_with_text.png "CV, but Open."
-[yolo34py-gpu]: https://github.com/madhawav/YOLO3-4-Py "You only Python-wrap once. ;-)"
 -->
+[yolo34py-gpu]: https://github.com/madhawav/YOLO3-4-Py "You only Python-wrap once. ;-)"
