@@ -85,16 +85,14 @@ A written report (in German :-/ ) can be found [here](./written_report/Ausarbeit
 
 
 ### Software and Technology used
-[<img src=https://pjreddie.com/media/image/yologo_2.png width="482" height="256"/>](https://pjreddie.com/media/image/yologo_2.png)
-![Darknet][darknet]
-![OpenCV][opencv]
+[<img src=https://pjreddie.com/media/image/yologo_2.png width="241" height="128"/>](YOLO)
+[<img src=https://camo.githubusercontent.com/e69d4118b20a42de4e23b9549f9a6ec6dbbb0814/687474703a2f2f706a7265646469652e636f6d2f6d656469612f66696c65732f6461726b6e65742d626c61636b2d736d616c6c2e706e67 width="128" height="128"/>](Darknet)
+[<img src=https://upload.wikimedia.org/wikipedia/commons/thumb/5/53/OpenCV_Logo_with_text.png/195px-OpenCV_Logo_with_text.png width="128" height="128"/>](OpenCV)
 
 [Darknet](https://github.com/pjreddie/darknet "Really super dark!"),
 [YOLOv3](https://pjreddie.com/darknet/yolo/ "You only click once. ;-)"),
 [Python 3.6^](https://www.python.org/ "Ni!!!"),
 [YOLO3-4-Py][yolo34py-gpu]
-
-##
 
 ##### Created by
 Max Loch, Jacomo Krause und Timm Kühnel
@@ -102,7 +100,12 @@ Max Loch, Jacomo Krause und Timm Kühnel
 ##### Licence
 GNU GPL v3
 
+<!--
+![Darknet][darknet]
+![OpenCV][opencv]
+
 [yolo]: https://pjreddie.com/media/image/yologo_2.png "You only look once."
 [darknet]: https://camo.githubusercontent.com/e69d4118b20a42de4e23b9549f9a6ec6dbbb0814/687474703a2f2f706a7265646469652e636f6d2f6d656469612f66696c65732f6461726b6e65742d626c61636b2d736d616c6c2e706e67 "So dark!!"
 [opencv]: https://upload.wikimedia.org/wikipedia/commons/thumb/5/53/OpenCV_Logo_with_text.png/195px-OpenCV_Logo_with_text.png "CV, but Open."
 [yolo34py-gpu]: https://github.com/madhawav/YOLO3-4-Py "You only Python-wrap once. ;-)"
+-->
